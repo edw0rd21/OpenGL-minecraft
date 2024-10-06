@@ -2,6 +2,14 @@ branch before revamp: https://github.com/edw0rd21/OpenGL-minecraft/commit/bc9390
 
 Update after MAJOR refactoring/change in architecture(06/10/24):
 
-Previously, before the architecture change, textures were being loaded and was working. To reduce task while refactoring, decided to layoff texture loading and usage for the time being(plan to implement it back soon).
+Previously, before the architecture change, textures were being loaded and was working. To reduce task while refactoring, decided to layoff texture loading and usage for the time being(plan to implement it back soon), as the vertex buffer was getting too complicated to manage (multiple coords for cube matrix, and texture coords).
 
 As of right, keyboard and mouse inputs are being registered, but only keyboard inputs are being processed. working on a fix
+
+Fixed: keyboard was working earlier since i moved `processInput()` method from Renderer to Application (design choice), so, unconsciously the issue was fixed for it, since it was using correct instance of `Camera`, which was directly created and passed to the method.
+
+I was essentially creating 2 separate instances of camera class. i needed to pass the instance i was creating in Application to Renderer for it to use.
+
+simply doing Camera camera; individually in both classes, and using that camera member (which in essence had no relation to each other) was not going to cut it 
+
+Next up will try to load mutiple chunks next via world class(not used as of now)
