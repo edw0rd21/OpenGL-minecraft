@@ -1,3 +1,5 @@
+branch before revamp: https://github.com/edw0rd21/OpenGL-minecraft/commit/bc9390a564b65a92228b6a1640731e35b173e73f
+
 Update after MAJOR refactoring/change in architecture(06/10/24):
 
 Previously, before the architecture change, textures were being loaded and was working. To reduce task while refactoring, decided to layoff texture loading and usage for the time being(plan to implement it back soon).
