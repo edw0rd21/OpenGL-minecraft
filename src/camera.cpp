@@ -1,4 +1,4 @@
-#include "camera.h"
+#include "Camera.h"
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
@@ -19,9 +19,17 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-glm::mat4 Camera::GetViewMatrix()
+glm::mat4 Camera::getViewMatrix() const
 {
+    glm::mat4 view = glm::lookAt(Position, Position + Front, Up);
+    //std::cout << "View Matrix: " << glm::to_string(glm::lookAt(Position, Position + Front, Up)) << std::endl;
     return glm::lookAt(Position, Position + Front, Up);
+
+}
+
+glm::mat4 Camera::getProjectionMatrix(float aspectRatio) const 
+{
+    return glm::perspective(glm::radians(Zoom), aspectRatio, 0.1f, 100.f);
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -29,7 +37,10 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = MovementSpeed * deltaTime;
     if (direction == FORWARD)
+    {
+        std::cout << "Camera Position: " << Position.x << ", " << Position.y << ", " << Position.z << std::endl;
         Position += Front * velocity;
+    }
     if (direction == BACKWARD)
         Position -= Front * velocity;
     if (direction == LEFT)
