@@ -2,12 +2,15 @@
 
 Application::Application() : renderer() , aspectRatio(0) {}
 
-Application::Application(int width, int height, const std::string& title) : camera(glm::vec3(0.0f, 2.0f, 4.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -25.0f), renderer(width, height, title)
+Application::Application(int width, int height, const std::string& title) : camera(glm::vec3(0.0f, 2.0f, 4.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -25.0f), renderer(width, height, title, camera)
 {
 	aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 	deltaTime = 0.0f;
 	lastFrame = 0.0f;
 
+    lastX = width / 2.0f;
+    lastY = height / 2.0f;
+    firstMouse = true;
 }
 
 Application::~Application() {}
@@ -15,6 +18,7 @@ Application::~Application() {}
 void Application::run() 
 { 
 	renderer.init();
+
 	mainLoop(); 
 }
 
@@ -22,6 +26,7 @@ void update()
 {
 
 }
+
 void Application::processInput()
 {
     if (glfwGetKey(renderer.getwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -53,6 +58,7 @@ void Application::processInput()
         camera.ProcessKeyboard(DOWN, 4 * deltaTime);
     }
 }
+
 void Application::mainLoop() 
 {
 	while (!glfwWindowShouldClose(renderer.getwindow()))

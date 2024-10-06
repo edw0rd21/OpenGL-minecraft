@@ -16,7 +16,7 @@ class Renderer
 {
 public:
     Renderer();
-    Renderer(int width, int height, const std::string& windowTitle);
+    Renderer(int width, int height, const std::string& windowTitle, Camera& camera);
     ~Renderer();
 
     GLFWwindow* getwindow() const;
@@ -26,8 +26,8 @@ public:
 
 private:
     GLFWwindow* window;
-    const unsigned int m_SCR_WIDTH;
-    const unsigned int m_SCR_HEIGHT;
+    unsigned int m_SCR_WIDTH;
+    unsigned int m_SCR_HEIGHT;
     std::string m_windowTitle;
     GLuint VBO, VAO, EBO;
     float lastX;
@@ -36,7 +36,7 @@ private:
 
     Shader shader;
     Quad quad;
-    Camera camera;
+    Camera& camera;
 
     void setupBuffers(const Quad& quad);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);

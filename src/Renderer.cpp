@@ -1,9 +1,9 @@
 #include "Renderer.h"
 
-Renderer::Renderer() : m_SCR_WIDTH(0), m_SCR_HEIGHT(0) {}
+Renderer::Renderer() : m_SCR_WIDTH(0), m_SCR_HEIGHT(0), camera(camera) {}
 
-Renderer::Renderer(int width, int height, const std::string& windowTitle)
-    : m_SCR_WIDTH(width), m_SCR_HEIGHT(height), m_windowTitle(windowTitle) 
+Renderer::Renderer(int width, int height, const std::string& windowTitle, Camera& camera)
+    : m_SCR_WIDTH(width), m_SCR_HEIGHT(height), m_windowTitle(windowTitle) , camera(camera)
 {
     VBO = 0;
     VAO = 0;
@@ -41,11 +41,12 @@ void Renderer::init()
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
     }
-    glfwSetWindowUserPointer(window, this);
+
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, &framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, &mouse_callback);
+    glfwSetScrollCallback(window, &scroll_callback);
     
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
@@ -130,6 +131,7 @@ void Renderer::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     renderer->lastY = ypos;
 
     renderer->camera.ProcessMouseMovement(xoffset, yoffset);
+    //std::cout << "mouse" << xpos<<"," << ypos << std::endl;
 }
 
 
