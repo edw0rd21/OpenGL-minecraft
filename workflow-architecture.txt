@@ -1,0 +1,52 @@
+Project Architecture:
+Application Class
+Responsible for managing the main application flow.
+Methods:
+Constructor
+Destructor
+processInput()
+run()
+mainLoop()
+
+Renderer Class
+Handles rendering tasks, abstracts openGL stuff.
+Methods:
+init()
+clear()
+draw()
+setupBuffer()
+callback methods
+
+Shader Class
+Manages shader programs and their properties.
+Methods:
+Shader()
+load(const char* vertexPath, const char* fragmentPath)
+use() const
+utils (like setVec3, setMat4)
+Private Methods:
+shader loading and compiling methods
+checkCompileErrors(unsigned int shader, std::string type)
+
+World Class (to be fully defined)
+Manages the scene or environment.
+Members:
+std::vector<glm::vec3> (cube positions)
+std::vector<Cube> (cube instances)
+
+Camera Class
+Manages the view and perspective.
+Methods:
+getProjectionMatrix()
+getViewMatrix()
+processKeyboard()/ processMouse()
+updateCameraVectors
+etc
+
+Cube Class(basically a struct)
+indices and vertices
+
+Basic workflow:
+`Renderer::draw()` takes in `glm::mat4& projection`, `glm::mat4& view`, `glm::mat4& model` and sends them to shader, and draws using `glDrawElements`, projection, view and model matrices are calculated in `Application::mainLoop()` and `renderer.draw(\\args)` is called. 
+
+
