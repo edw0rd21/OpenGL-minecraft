@@ -12,11 +12,13 @@
 #include "Quad.h"
 #include "Camera.h"
 
+class InputHandler;
+
 class Renderer
 {
 public:
     Renderer();
-    Renderer(int width, int height, const std::string& windowTitle, Camera& camera);
+    Renderer(int width, int height, const std::string& windowTitle, Camera& camera, InputHandler& inputHandler);
     ~Renderer();
 
     GLFWwindow* getwindow() const;
@@ -30,9 +32,7 @@ private:
     unsigned int m_SCR_HEIGHT;
     std::string m_windowTitle;
     GLuint VBO, VAO, EBO;
-    float lastX;
-    float lastY;
-    bool firstMouse;
+    InputHandler& inputHandler;
 
     Shader shader;
     Quad quad;

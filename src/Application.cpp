@@ -1,23 +1,32 @@
 #include "Application.h"
 
-Application::Application() : renderer() , aspectRatio(0) {}
+Application::Application() : renderer() , aspectRatio(0) , inputHandler() , world() {}
 
-Application::Application(int width, int height, const std::string& title) : camera(glm::vec3(0.0f, 2.0f, 4.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -25.0f), renderer(width, height, title, camera)
+Application::Application(int width, int height, const std::string& title)
+	: camera(glm::vec3(0.0f, 2.0f, 4.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -25.0f), 
+	  renderer(width, height, title, camera, inputHandler), 
+	  inputHandler(camera, renderer, width, height),
+	  world(camera, renderer)
 {
 	aspectRatio = static_cast<float>(width) / static_cast<float>(height);
-	deltaTime = 0.0f;
-	lastFrame = 0.0f;
-
-    lastX = width / 2.0f;
-    lastY = height / 2.0f;
-    firstMouse = true;
 }
 
-Application::~Application() {}
+Application::~Application() 
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
 
 void Application::run() 
-{ 
+{ 	
 	renderer.init();
+
+	const char* glsl_version = "#version 130";
+	ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(renderer.getwindow(), true);
+	ImGui_ImplOpenGL3_Init(glsl_version);
+	ImGui::StyleColorsDark();
 
 	mainLoop(); 
 }
@@ -27,58 +36,73 @@ void update()
 
 }
 
-void Application::processInput()
+void Application::handleInput(float deltaTime) 
 {
-    if (glfwGetKey(renderer.getwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(renderer.getwindow(), true);
-
-    if (glfwGetKey(renderer.getwindow(), GLFW_KEY_P) == GLFW_PRESS)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    else if (glfwGetKey(renderer.getwindow(), GLFW_KEY_Q) == GLFW_PRESS)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Set to filled
-
-    if (glfwGetKey(renderer.getwindow(), GLFW_KEY_W) == GLFW_PRESS)
-    {
-        //std::cout << "W key pressed" << std::endl;
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    }
-    if (glfwGetKey(renderer.getwindow(), GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(renderer.getwindow(), GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(renderer.getwindow(), GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-
-    if (glfwGetKey(renderer.getwindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(UP, 4 * deltaTime);
-    if (glfwGetKey(renderer.getwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-    {
-        std::cout << "Move down" << std::endl;
-        camera.ProcessKeyboard(DOWN, 4 * deltaTime);
-    }
+	inputHandler.handleKeyboard(deltaTime);
 }
 
-void Application::mainLoop() 
-{
+void Application::mainLoop()
+{	
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 	while (!glfwWindowShouldClose(renderer.getwindow()))
 	{	
-		float currentFrame = static_cast<float>(glfwGetTime());
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
 
-		processInput();
+		inputHandler.handleKeyboard(world.deltaTime);
 
 		renderer.clear();
 
-		//shader.use();
-		glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
+		ImGuiIO& io = ImGui::GetIO();
+		int display_w, display_h;
+		glfwGetFramebufferSize(renderer.getwindow(), &display_w, &display_h);
+		io.DisplaySize = ImVec2((float)display_w, (float)display_h);  // Set the display size
+        
+		world.render(aspectRatio);
 
-		glm::mat4 view = camera.getViewMatrix();
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(20.0f * currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
-		
-		renderer.draw(projection, view, model);
+        ImGui_ImplGlfw_NewFrame();
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui::NewFrame();
+
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+
+        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+        {
+            static float f = 0.0f;
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::End();
+        }
+
+        // 3. Show another simple window.
+        if (show_another_window)
+        {
+            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
+            ImGui::End();
+        }
+        //ImGui render
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(renderer.getwindow());
 		glfwPollEvents();

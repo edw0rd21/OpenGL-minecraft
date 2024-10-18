@@ -1,16 +1,14 @@
 #include "Renderer.h"
+#include "InputHandler.h"
 
-Renderer::Renderer() : m_SCR_WIDTH(0), m_SCR_HEIGHT(0), camera(camera) {}
+Renderer::Renderer() : m_SCR_WIDTH(0), m_SCR_HEIGHT(0), camera(camera) , inputHandler(inputHandler){}
 
-Renderer::Renderer(int width, int height, const std::string& windowTitle, Camera& camera)
-    : m_SCR_WIDTH(width), m_SCR_HEIGHT(height), m_windowTitle(windowTitle) , camera(camera)
+Renderer::Renderer(int width, int height, const std::string& windowTitle, Camera& camera, InputHandler& inputHandler)
+    : m_SCR_WIDTH(width), m_SCR_HEIGHT(height), m_windowTitle(windowTitle) , camera(camera) , inputHandler(inputHandler)
 {
     VBO = 0;
     VAO = 0;
     EBO = 0;
-    lastX = m_SCR_WIDTH / 2.0f;
-    lastY = m_SCR_HEIGHT / 2.0f;
-    firstMouse = true;
 }
 
 Renderer::~Renderer()
@@ -109,34 +107,15 @@ void Renderer::framebuffer_size_callback(GLFWwindow* window, int width, int heig
     glViewport(0, 0, width, height);
 }
 
-void Renderer::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+void Renderer::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     Renderer* renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-
-
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
-    if (renderer->firstMouse)
-    {
-        renderer->lastX = xpos;
-        renderer->lastY = ypos;
-        renderer->firstMouse = false;
-    }
-
-    float xoffset = xpos - renderer->lastX;
-    float yoffset = renderer->lastY - ypos;
-
-    renderer->lastX = xpos;
-    renderer->lastY = ypos;
-
-    renderer->camera.ProcessMouseMovement(xoffset, yoffset);
-    //std::cout << "mouse" << xpos<<"," << ypos << std::endl;
+    renderer->inputHandler.handleMouse(xpos, ypos);
 }
 
 
 void Renderer::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     Renderer* renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-    renderer->camera.ProcessMouseScroll(static_cast<float>(yoffset));
+    renderer->inputHandler.handleScroll(yoffset);
 }

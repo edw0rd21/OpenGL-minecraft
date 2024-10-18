@@ -5,6 +5,12 @@
 #include "Renderer.h"
 #include "Camera.h"
 #include "Shader.h"
+#include "InputHandler.h"
+#include "World.h"
+
+#include "vendor/imgui.h"
+#include "vendor/imgui_impl_glfw.h"
+#include "vendor/imgui_impl_opengl3.h"
 
 class Application
 {
@@ -15,24 +21,27 @@ public:
     ~Application();
 
     void run(); 
-    void processInput();
     void update();
 
 private:
     Renderer renderer;
-    //World world;
+    World world;
     Camera camera;
+    InputHandler inputHandler;
 
     //float currentFrame;
     float deltaTime;
     float lastFrame;
-    void mainLoop();
     float aspectRatio;
     Shader shader;
+    void mainLoop();
+    void handleInput(float deltaTime);
 
     float lastX;
     float lastY;
     bool firstMouse;
+
+    //imgui stuff
 
     //tried out defining callback functions in Application class to fix issue of input registry 
     // (worked, but not because of what i though)

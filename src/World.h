@@ -10,35 +10,24 @@
 
 class World {
 public:
-
-    World() : camera(glm::vec3(3.0f, 3.0f, 3.0f)) {}
-
-    //void addCube(const Quad& quad) {
-    //    quads.push_back(quad);
-    //}
+    World();
+    World(Camera& camera, Renderer& renderer) ;
 
 
-    void render(float aspectRatio)
-    {
-        glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
-        glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, glm::radians(20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+    //void addCube(const Quad& quad);
 
-        renderer.draw(projection, view, model);
-    }
+    void render(float aspectRatio);
 
+    void update(float deltaTime);
 
-    //void update(float deltaTime) {
-    //    
-    //    for (Cube& cube : cubes) {
-    //        cube.update(deltaTime); 
-    //    }
-    //}
+    float deltaTime;
+    float lastFrame;
 
 private:
     Quad quad;
-    Camera camera;
-    Renderer renderer;
+    Camera& camera;
+    Renderer& renderer;
+
+    float rotationAngle;
 
 };
