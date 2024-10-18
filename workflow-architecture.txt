@@ -28,6 +28,14 @@ Private Methods:
 shader loading and compiling methods
 checkCompileErrors(unsigned int shader, std::string type)
 
+InputHandler Class
+Handles input events
+Methods:
+InputHandler(Camera& camera, Renderer& renderer, int width, int height) (default constructor)
+void handleKeyboard(float deltaTime);
+void handleMouse(double xpos, double ypos);
+void handleScroll(double yoffset);
+
 World Class (to be fully defined)
 Manages the scene or environment.
 Members:
