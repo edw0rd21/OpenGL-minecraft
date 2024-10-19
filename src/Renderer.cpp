@@ -59,17 +59,18 @@ void Renderer::init()
     setupBuffers(quad);
 }
 
-void Renderer::clear()
+void Renderer::clear(ImVec4 scrColor)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(scrColor.x, scrColor.y, scrColor.z, scrColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 } 
 
-void Renderer::draw(glm::mat4& projection, glm::mat4& view, glm::mat4& model)
+void Renderer::draw(glm::vec3 quadColor, glm::mat4& projection, glm::mat4& view, glm::mat4& model)
 {
     shader.use();
     glBindVertexArray(VAO); 
 
+    shader.setVec3("quadColor", quadColor);
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
     shader.setMat4("model", model);

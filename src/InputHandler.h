@@ -11,6 +11,8 @@ public:
 	~InputHandler();
 
 	void handleKeyboard(float deltaTime);
+	bool getMouseState() const;
+	void setMouseState(bool state);
 	void handleMouse(double xpos, double ypos);
 	void handleScroll(double yoffset);
 
@@ -22,6 +24,6 @@ private:
 	int SCR_HEIGHT;
 	float lastX;
 	float lastY;
-	bool firstMouse;
+	bool firstMouse, processMouseMovement;
 };
 

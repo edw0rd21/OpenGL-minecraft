@@ -3,10 +3,17 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
+#include "vendor/imgui/imgui.h"
+#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
+
 struct Quad
 {
     Quad()
     {
+        quadColor = glm::vec3(0.0f, 1.0f, 0.0f);
+
         t_size = t_vertices.size() * sizeof(float);
 
         q_size = q_vertices.size() * sizeof(float);
@@ -103,6 +110,8 @@ struct Quad
     GLsizeiptr t_size, q_size, c_size;
     std::size_t q_indexCount;
     std::size_t c_indexCount;
+
+    glm::vec3 quadColor;
 
 };
 

@@ -1,16 +1,13 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-//#include "World.h"
+#include "World.h"
 #include "Renderer.h"
 #include "Camera.h"
 #include "Shader.h"
 #include "InputHandler.h"
 #include "World.h"
-
-#include "vendor/imgui.h"
-#include "vendor/imgui_impl_glfw.h"
-#include "vendor/imgui_impl_opengl3.h"
+#include "GUI.h"
 
 class Application
 {
@@ -28,6 +25,7 @@ private:
     World world;
     Camera camera;
     InputHandler inputHandler;
+    GUI gui;
 
     //float currentFrame;
     float deltaTime;
@@ -37,6 +35,7 @@ private:
     void mainLoop();
     void handleInput(float deltaTime);
 
+    ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
     float lastX;
     float lastY;
     bool firstMouse;

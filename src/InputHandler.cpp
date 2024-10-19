@@ -7,9 +7,20 @@ InputHandler::InputHandler(Camera& camera, Renderer& renderer, int width, int he
     lastX = SCR_WIDTH / 2.0f;
     lastY = SCR_HEIGHT / 2.0f;
     firstMouse = true;
+    processMouseMovement = false;
 }
 
 InputHandler::~InputHandler(){}
+
+bool InputHandler::getMouseState() const
+{
+    return processMouseMovement;
+}
+
+void InputHandler::setMouseState(bool state)
+{
+    processMouseMovement = state;
+}
 
 void InputHandler::handleKeyboard(float deltaTime)
 {
@@ -44,6 +55,9 @@ void InputHandler::handleKeyboard(float deltaTime)
 }
 void InputHandler::handleMouse(double xpos, double ypos) 
 {
+    if (!processMouseMovement)
+        return;
+
     float xposFloat = static_cast<float>(xpos);
     float yposFloat = static_cast<float>(ypos);
 

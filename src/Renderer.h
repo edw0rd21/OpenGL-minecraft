@@ -23,8 +23,8 @@ public:
 
     GLFWwindow* getwindow() const;
     void init();
-    void clear();
-    void draw(glm::mat4& projection, glm::mat4& view,  glm::mat4& model);
+    void clear(ImVec4 scrColor);
+    void draw(glm::vec3 quadColor, glm::mat4& projection, glm::mat4& view,  glm::mat4& model);
 
 private:
     GLFWwindow* window;

@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+
+#include "vendor/imgui/imgui.h"
 #include "Quad.h"   
 #include "Renderer.h"
 #include "Camera.h"
@@ -18,15 +20,15 @@ public:
 
     void render(float aspectRatio);
 
-    void update(float deltaTime);
+    void update(glm::vec3 newColor);
 
     float deltaTime;
     float lastFrame;
 
 private:
     Quad quad;
-    Camera& camera;
-    Renderer& renderer;
+    Camera* m_camera;
+    Renderer* m_renderer;
 
     float rotationAngle;
 
