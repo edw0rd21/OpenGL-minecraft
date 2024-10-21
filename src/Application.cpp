@@ -4,9 +4,9 @@ Application::Application() : renderer() , aspectRatio(0) , inputHandler() , worl
 
 Application::Application(int width, int height, const std::string& title)
 	: camera(glm::vec3(0.0f, 2.0f, 4.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -25.0f), 
-	  renderer(width, height, title, camera, inputHandler, quad), 
+	  renderer(width, height, title, camera, inputHandler), 
 	  inputHandler(camera, renderer, width, height),
-	  world(camera, renderer, quad),
+	  world(camera, renderer),
       gui(renderer, world, inputHandler)
 {
 	aspectRatio = static_cast<float>(width) / static_cast<float>(height);
@@ -44,6 +44,9 @@ void Application::mainLoop()
 		renderer.clear();
         gui.newFrame();
 		gui.drawFrame();
+
+		world.unloadChunk();
+		world.loadChunk();
 
 		world.render(aspectRatio);
 

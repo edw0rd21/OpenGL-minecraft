@@ -5,7 +5,7 @@ GUI::GUI(Renderer& renderer, World& world, InputHandler& inputHandler) : m_rende
 {
 	show_demo_window = true;
     renderMode_window = false;
-	clear_color = ImVec4(quad.getColor().x, quad.getColor().y, quad.getColor().z, 1.00f);
+	clear_color = ImVec4(voxel.color.x, voxel.color.y, voxel.color.z, 1.00f);
     
     clear_scr_color = ImVec4(m_renderer->getScrColor().x, m_renderer->getScrColor().y, m_renderer->getScrColor().z, 1.0f);
     mouseState = m_inputHandler->mouseState;
@@ -41,6 +41,7 @@ void GUI::drawFrame()
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
     {
         static int i = 1;
+        static int j = 1;
         static int counter = 0;
 
         ImGui::Begin("Settings");                          // Create a window called "Hello, world!" and append into it.
@@ -59,12 +60,16 @@ void GUI::drawFrame()
             m_world->rotationState; // Set the new state
         }
 
-        if (ImGui::SliderInt("Chunk Size", &i, 1, 1000))            // Edit 1 float using a slider from 0.0f to 1.0f
+        if (ImGui::InputInt("Chunk Size", &i, 1, 1000))           
         {
-            m_world->setChunkSize(i);
+            m_world->setChunkNum(i);
         }   
+        if (ImGui::InputInt("Voxels per Chunk", &j, 1, 100))            
+        {
+            m_world->setChunkSize(j);
+        }
 
-        ImGui::ColorEdit3("Quad Color", (float*)&clear_color); // Edit 3 floats representing a color
+        ImGui::ColorEdit3("Voxel Color", (float*)&clear_color); // Edit 3 floats representing a color
         if (ImGui::IsItemActive())
         {
             glm::vec3 glmColor = glm::vec3(clear_color.x, clear_color.y, clear_color.z);

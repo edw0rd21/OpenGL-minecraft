@@ -3,7 +3,7 @@
 #include "Renderer.h"
 #include "World.h"
 #include "InputHandler.h"
-#include "Quad.h"
+#include "Voxel.h"
 
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/imgui_impl_glfw.h"
@@ -29,7 +29,7 @@ private:
 	bool renderMode_window;
 	ImVec4 clear_color;
 	ImVec4 clear_scr_color;
-	Quad quad;
+	Voxel voxel;
 
 	ImGuiIO* io;
 	World* m_world;

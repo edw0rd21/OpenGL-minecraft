@@ -2,11 +2,12 @@
 
 World::World() : m_camera(), m_renderer() {}
 
-World::World(Camera& camera, Renderer& renderer, Quad& quad) : m_camera(&camera), m_renderer(&renderer), m_quad(&quad)
+World::World(Camera& camera, Renderer& renderer) : m_camera(&camera), m_renderer(&renderer)
 {
     deltaTime = 0.0f;
     lastFrame = 0.0f;
-    chunkSize = 1;
+    numChunks = 1;
+    numCubes = 1;
     rotationState = false;
     //loadChunk();
 }
@@ -17,18 +18,41 @@ World::World(Camera& camera, Renderer& renderer, Quad& quad) : m_camera(&camera)
 //}
 void World::loadChunk()
 {
-    cubePositions.clear();
-    for (int x = 0; x < chunkSize; ++x) 
-    {
-        for (int y = 0; y < chunkSize; ++y)
-        {
-            for (int z = 0; z < chunkSize; ++z)
-            {
-                //cubePositions.push_back(glm::vec3(x, y, z));
-                glm::vec3 cubePos(x, y, z);
-                if (isPointInFrustum(cubePos) != World::OUTSIDE)
-                    cubePositions.push_back(cubePos);
+    chunks.clear();
 
+    //chunk creation
+    for (int x = 0; x < numChunks; ++x)
+    {
+        for (int y = 0; y < numChunks; ++y)
+        {
+            for (int z = 0; z < numChunks; ++z)
+            {
+                Chunk chunk;
+                chunk.position = glm::vec3(x * numCubes, y * numCubes, z * numCubes);
+
+                // populating each chunk with cube positions
+                for (int i = 0; i < numCubes; ++i)
+                {
+                    for (int j = 0; j < numCubes; ++j)
+                    {
+                        for (int k = 0; k < numCubes; ++k)
+                        {
+                            glm::vec3 cubePos = chunk.position + glm::vec3(i, j, k);
+
+                            if (isPointInFrustum(cubePos) != World::OUTSIDE)
+                            {
+                                Voxel voxel;
+                                voxel.position = cubePos; 
+                                chunk.voxels.push_back(voxel);
+                            }
+                        }
+                    }
+                }
+                if (!chunk.voxels.empty())
+                {
+                    chunks.push_back(chunk);
+                    //chunks[chunk.position] = chunk;  //unordered map
+                }
             }
         }
     }
@@ -37,12 +61,13 @@ void World::loadChunk()
 void World::unloadChunk()
 {
 
-    auto it = cubePositions.begin();
-    while (it != cubePositions.end())
+    auto it = chunks.begin();
+    while (it != chunks.end())
     {
-        if (isPointInFrustum(*it) == World::OUTSIDE)
+        if (isPointInFrustum(it->position) == World::OUTSIDE)
+        //if (isPointInFrustum(it->second.position) == World::OUTSIDE)  //unordered map
         {
-            it = cubePositions.erase(it);
+            it = chunks.erase(it);
         }
         else
         {
@@ -51,19 +76,18 @@ void World::unloadChunk()
     }
 }
 
-void World::setChunkSize(int value)
+void World::setChunkNum(int value)
 {
-    chunkSize = value;
-    //loadChunk();
+    numChunks = value;
+    loadChunk();
 }
 
-void World::update(glm::vec3 newColor)
+void World::setChunkSize(int value)
 {
-   m_quad->quadColor = newColor;
-   //rotationAngle += glm::radians(20.0f * deltaTime);
-   //glm::mat4 model = glm::mat4(1.0f);
-   //model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+    numCubes = value;
+    loadChunk();
 }
+
 
 void World::calculateFrustumPlanes(glm::mat4& projectionViewMatrix)
 {
@@ -109,7 +133,6 @@ void World::calculateFrustumPlanes(glm::mat4& projectionViewMatrix)
         planes[i] /= length;
     }
 }
-
 int World::isPointInFrustum(const glm::vec3& point) const
 {
     for (int i = 0; i < 6; i++)
@@ -120,6 +143,17 @@ int World::isPointInFrustum(const glm::vec3& point) const
     return INSIDE;
 }
 
+void World::update(glm::vec3 newColor)
+{
+    //voxel.color = newColor;
+    for (auto& chunk : chunks)
+    {
+        for (auto& voxel : chunk.voxels) 
+        {
+            voxel.color = newColor;
+        }
+    }
+}
 void World::render(float aspectRatio)
 {
     float currentFrame = static_cast<float>(glfwGetTime());
@@ -132,21 +166,25 @@ void World::render(float aspectRatio)
 
     calculateFrustumPlanes(projectionViewMatrix);
 
-    unloadChunk();
-    loadChunk();
-
     glm::mat4 model = glm::mat4(1.0f);
 
-    for (const auto& position : cubePositions)
+    for (auto& chunk : chunks)
     {
+        if (isPointInFrustum(chunk.position) == World::INSIDE)
+        {
+            for (auto& voxel : chunk.voxels)
+            {
+                model = glm::translate(glm::mat4(1.0f), voxel.position);
 
-        model = glm::translate(glm::mat4(1.0f), position);
-        if (rotationState == true)
-          model = glm::rotate(model, glm::radians(40.0f * currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
+                if (rotationState == true)
+                    model = glm::rotate(model, glm::radians(40.0f * currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        m_renderer->draw(m_quad->quadColor, projection, view, model);
+                m_renderer->draw(voxel.color, projection, view, model);
+            }
+        }
     }
 }
+
 
 
 

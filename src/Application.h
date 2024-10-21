@@ -26,7 +26,7 @@ private:
     Camera camera;
     InputHandler inputHandler;
     GUI gui;
-    Quad quad;
+    //Voxel voxel;
 
     //float currentFrame;
     float deltaTime;
