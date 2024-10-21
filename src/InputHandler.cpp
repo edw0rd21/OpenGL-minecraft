@@ -7,19 +7,16 @@ InputHandler::InputHandler(Camera& camera, Renderer& renderer, int width, int he
     lastX = SCR_WIDTH / 2.0f;
     lastY = SCR_HEIGHT / 2.0f;
     firstMouse = true;
-    processMouseMovement = false;
+    mouseState = false;
+    flag = false;
 }
 
 InputHandler::~InputHandler(){}
 
-bool InputHandler::getMouseState() const
-{
-    return processMouseMovement;
-}
-
 void InputHandler::setMouseState(bool state)
 {
-    processMouseMovement = state;
+    mouseState = state;
+    flag = !flag;
 }
 
 void InputHandler::handleKeyboard(float deltaTime)
@@ -46,16 +43,38 @@ void InputHandler::handleKeyboard(float deltaTime)
         m_camera.ProcessKeyboard(RIGHT, deltaTime);
 
     if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-        m_camera.ProcessKeyboard(UP, 4 * deltaTime);
+        m_camera.ProcessKeyboard(UP,  deltaTime);
     if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
         std::cout << "Move down" << std::endl;
-        m_camera.ProcessKeyboard(DOWN, 4 * deltaTime);
+        m_camera.ProcessKeyboard(DOWN, deltaTime);
+    }
+
+    if(flag == false)
+    {
+        if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+        {
+            glfwSetInputMode(m_renderer.getwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            mouseState = true;
+        }
+
+        if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
+        {
+            glfwSetInputMode(m_renderer.getwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            mouseState = false;
+        }
+    }
+    else 
+    {
+        if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+        {
+            mouseState = false;
+        }
     }
 }
 void InputHandler::handleMouse(double xpos, double ypos) 
 {
-    if (!processMouseMovement)
+    if (!mouseState)
         return;
 
     float xposFloat = static_cast<float>(xpos);

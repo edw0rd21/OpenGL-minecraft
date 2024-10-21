@@ -4,12 +4,13 @@ Application::Application() : renderer() , aspectRatio(0) , inputHandler() , worl
 
 Application::Application(int width, int height, const std::string& title)
 	: camera(glm::vec3(0.0f, 2.0f, 4.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -25.0f), 
-	  renderer(width, height, title, camera, inputHandler), 
+	  renderer(width, height, title, camera, inputHandler, quad), 
 	  inputHandler(camera, renderer, width, height),
-	  world(camera, renderer),
+	  world(camera, renderer, quad),
       gui(renderer, world, inputHandler)
 {
 	aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+	scr_clear_color = glm::vec3(gui.glmScrColor.x, gui.glmScrColor.y, gui.glmScrColor.z);
 }
 
 Application::~Application() {}
@@ -40,7 +41,7 @@ void Application::mainLoop()
 
 		inputHandler.handleKeyboard(world.deltaTime);
 
-		renderer.clear(clearColor);
+		renderer.clear();
         gui.newFrame();
 		gui.drawFrame();
 

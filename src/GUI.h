@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "World.h"
 #include "InputHandler.h"
+#include "Quad.h"
 
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/imgui_impl_glfw.h"
@@ -19,12 +20,16 @@ public:
 	void newFrame();
 	void drawFrame();
 	void render();
+	glm::vec3 glmScrColor;
+	bool mouseState;
 
 private:
 	bool show_demo_window;
 	bool show_another_window;
+	bool renderMode_window;
 	ImVec4 clear_color;
 	ImVec4 clear_scr_color;
+	Quad quad;
 
 	ImGuiIO* io;
 	World* m_world;

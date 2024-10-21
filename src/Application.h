@@ -19,13 +19,14 @@ public:
 
     void run(); 
     void update();
-
+    
 private:
     Renderer renderer;
     World world;
     Camera camera;
     InputHandler inputHandler;
     GUI gui;
+    Quad quad;
 
     //float currentFrame;
     float deltaTime;
@@ -34,8 +35,8 @@ private:
     Shader shader;
     void mainLoop();
     void handleInput(float deltaTime);
-
-    ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec3 scr_clear_color;
+    
     float lastX;
     float lastY;
     bool firstMouse;

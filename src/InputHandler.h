@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "Camera.h"
 
+
 class InputHandler
 {
 public:
@@ -16,6 +17,8 @@ public:
 	void handleMouse(double xpos, double ypos);
 	void handleScroll(double yoffset);
 
+	bool mouseState;
+
 private:
 	Renderer& m_renderer;
 	Camera& m_camera;
@@ -24,6 +27,7 @@ private:
 	int SCR_HEIGHT;
 	float lastX;
 	float lastY;
-	bool firstMouse, processMouseMovement;
+	bool firstMouse;
+	bool flag;
 };
 

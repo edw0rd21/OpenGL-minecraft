@@ -21,6 +21,9 @@ struct Quad
 
         c_size = c_vertices.size() * sizeof(float);
         c_indexCount = c_indices.size();
+
+        p_size = p_vertices.size() * sizeof(float);
+        p_indexCount = p_indices.size();
     }
     std::vector<float> t_vertices = { 
        -0.5f, -0.5f, 0.0f, 
@@ -105,11 +108,40 @@ struct Quad
 
     };
 
+    std::vector<float> p_vertices = {
+        // Base square
+        -0.5f, -0.5f, -0.5f,  // 0 (Bottom-Left)
+         0.5f, -0.5f, -0.5f,  // 1 (Bottom-Right)
+         0.5f, -0.5f, 0.5f,   // 2 (Top-Right)
+        -0.5f, -0.5f, 0.5f,   // 3 (Top-Left)
+
+        // Apex vertex
+         0.0f,  0.5f, 0.0f   // 4 (Apex)
+    };
+
+    std::vector<unsigned int> p_indices = {
+        // Base (Square)
+        0, 1, 2, 
+        2, 3, 0,
+
+        // Sides (Triangles)
+        0, 1, 4,  // Front-Right
+        1, 2, 4,  // Front-Left
+        2, 3, 4,  // Back-Left
+        3, 0, 4   // Back-Right
+    };
+
+    glm::vec3 getColor()
+    {
+        return quadColor;
+    }
+
     std::vector<unsigned int>texCoords;
 
-    GLsizeiptr t_size, q_size, c_size;
+    GLsizeiptr t_size, q_size, c_size, p_size;
     std::size_t q_indexCount;
     std::size_t c_indexCount;
+    std::size_t p_indexCount;
 
     glm::vec3 quadColor;
 

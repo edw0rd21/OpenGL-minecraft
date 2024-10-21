@@ -18,14 +18,18 @@ class Renderer
 {
 public:
     Renderer();
-    Renderer(int width, int height, const std::string& windowTitle, Camera& camera, InputHandler& inputHandler);
+    Renderer(int width, int height, const std::string& windowTitle, Camera& camera, InputHandler& inputHandler, Quad& quad);
     ~Renderer();
 
     GLFWwindow* getwindow() const;
     void init();
-    void clear(ImVec4 scrColor);
+    void update(glm::vec3 glmColor);
+    void updateMode(char currentState);
+    void clear();
+    glm::vec3 getScrColor();
     void draw(glm::vec3 quadColor, glm::mat4& projection, glm::mat4& view,  glm::mat4& model);
 
+    char renderState;
 private:
     GLFWwindow* window;
     unsigned int m_SCR_WIDTH;
@@ -33,9 +37,10 @@ private:
     std::string m_windowTitle;
     GLuint VBO, VAO, EBO;
     InputHandler& inputHandler;
+    glm::vec3 clr_scr_color;
 
     Shader shader;
-    Quad quad;
+    Quad* m_quad;
     Camera& camera;
 
     void setupBuffers(const Quad& quad);
