@@ -6,7 +6,6 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "InputHandler.h"
-#include "World.h"
 #include "GUI.h"
 
 class Application
@@ -26,7 +25,7 @@ private:
     Camera camera;
     InputHandler inputHandler;
     GUI gui;
-    //Voxel voxel;
+    Chunk chunk;
 
     //float currentFrame;
     float deltaTime;

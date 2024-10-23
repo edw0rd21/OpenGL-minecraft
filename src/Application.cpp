@@ -21,10 +21,16 @@ void Application::run()
 
     gui.init();
 
+	if (camera.hasCameraMoved())
+	{
+		world.update();
+	}
+
 	mainLoop();
+
 }
 
-void update()
+void Application::update()
 {
 
 }
@@ -44,9 +50,6 @@ void Application::mainLoop()
 		renderer.clear();
         gui.newFrame();
 		gui.drawFrame();
-
-		world.unloadChunk();
-		world.loadChunk();
 
 		world.render(aspectRatio);
 
