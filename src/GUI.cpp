@@ -5,10 +5,8 @@ GUI::GUI(Renderer& renderer, World& world, InputHandler& inputHandler) : m_rende
 {
 	show_demo_window = true;
     renderMode_window = false;
-	clear_color = ImVec4(voxel.color.x, voxel.color.y, voxel.color.z, 1.00f);
     
     clear_scr_color = ImVec4(m_renderer->getScrColor().x, m_renderer->getScrColor().y, m_renderer->getScrColor().z, 1.0f);
-    mouseState = m_inputHandler->mouseState;
 }
 
 GUI::~GUI()
@@ -42,6 +40,7 @@ void GUI::drawFrame()
     {
         static int i = 1;
         static int j = 1;
+        static int f = voxel.getvoxelDist();
         static int counter = 0;
 
         ImGui::Begin("Settings");                          // Create a window called "Hello, world!" and append into it.
@@ -49,9 +48,11 @@ void GUI::drawFrame()
         ImGui::Text("Fly-like Cam:\nWASD for movement\nSpace/LShift for Up/Down Fly");               // Display some text (you can use a format strings too)
         ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 
+        bool mouseState = m_inputHandler->getMouseState();
         if (ImGui::Checkbox("Process Mouse Movement", &mouseState))
         {
             m_inputHandler->setMouseState(mouseState); // Set the new state
+            std::cout << "Mouse State:" << (mouseState ? "true" : "false") << std::endl;
         }
 
         bool newState = m_world->rotationState;
@@ -60,27 +61,34 @@ void GUI::drawFrame()
             m_world->rotationState; // Set the new state
         }
 
-        if (ImGui::InputInt("Chunk Size", &i, 1, 1000))           
+        if (ImGui::InputInt("Chunk Number", &i, 1, 1000))           
         {
             m_world->setChunkNum(i);
         }   
-        if (ImGui::InputInt("Voxels per Chunk", &j, 1, 100))            
+        if (ImGui::InputInt("Chunk Size (voxels/chunk)", &j, 1, 100))            
         {
-            m_world->setChunkSize(j);
+            chunk.setChunkSize(j);
+            //m_world->setChunkSize(j);
         }
 
+        if (ImGui::SliderInt("Voxel Distance", &f, 1, 5))
+        {
+            voxel.setVoxelDist(f);
+        }
+
+        ImVec4 clear_color = ImVec4(chunk.color.x, chunk.color.y, chunk.color.z, 1.00f);
         ImGui::ColorEdit3("Voxel Color", (float*)&clear_color); // Edit 3 floats representing a color
         if (ImGui::IsItemActive())
         {
             glm::vec3 glmColor = glm::vec3(clear_color.x, clear_color.y, clear_color.z);
-            m_world->update(glmColor); // Notify World
+            m_world->setVoxelColor(glmColor);
         }
 
         ImGui::ColorEdit3("Screen Color", (float*)&clear_scr_color); 
         if (ImGui::IsItemActive())
         {
             glmScrColor = glm::vec3(clear_scr_color.x, clear_scr_color.y, clear_scr_color.z);
-            m_renderer->update(glmScrColor); // Notify World
+            m_renderer->setScrClr(glmScrColor);
         }
 
         if (ImGui::Button("Render Mode"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
