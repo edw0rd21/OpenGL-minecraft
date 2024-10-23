@@ -8,8 +8,10 @@
 //#include <glm/gtc/matrix_transform.hpp>
 //#include <glm/gtc/type_ptr.hpp>
 
-struct Voxel
+class Voxel
 {
+public:
+    
     Voxel()
     {
         color = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -142,6 +144,16 @@ struct Voxel
     glm::vec3 position;
     glm::vec3 color;
 
+    void setVoxelDist(int value)
+    {
+        voxelDist = value;
+    }
+    int getvoxelDist()
+    {
+        return voxelDist;
+    }
+
     int instanceID;
+    int voxelDist = 2;
 };
 
