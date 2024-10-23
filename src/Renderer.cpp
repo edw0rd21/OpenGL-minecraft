@@ -58,10 +58,9 @@ void Renderer::init()
 
     shader.load("shader/shader.vert", "shader/shader.frag");
 
-    //setupBuffersInstanced(voxel);
-    setupBuffers(voxel);
+    setupBuffers(chunk);
 }
-void Renderer::update(glm::vec3 glmColor)
+void Renderer::setScrClr(glm::vec3 glmColor)
 {
     clr_scr_color = glm::vec3(glmColor.x, glmColor.y, glmColor.z);
 }
@@ -81,7 +80,7 @@ glm::vec3 Renderer::getScrColor()
     return clr_scr_color;
 }
 
-void Renderer::draw(const glm::vec3& color, glm::mat4& projection, glm::mat4& view, glm::mat4& model)
+void Renderer::draw(Voxel& voxel, glm::vec3 color, glm::mat4& projection, glm::mat4& view, glm::mat4& model)
 {
     shader.use();
     glBindVertexArray(VAO); 
@@ -94,7 +93,19 @@ void Renderer::draw(const glm::vec3& color, glm::mat4& projection, glm::mat4& vi
         glDrawElements(GL_TRIANGLES, voxel.c_indexCount, GL_UNSIGNED_INT, 0);
     else if (renderState == 1)
         glDrawElements(GL_TRIANGLES, voxel.p_indexCount, GL_UNSIGNED_INT, 0);
+}
 
+void Renderer::draw(Chunk& chunk, glm::vec3 color, glm::mat4& projection, glm::mat4& view, glm::mat4& model)
+{
+    shader.use();
+    glBindVertexArray(VAO);
+
+    shader.setVec3("color", color);
+    shader.setMat4("projection", projection);
+    shader.setMat4("view", view);
+    shader.setMat4("model", model);
+    
+    glDrawElements(GL_TRIANGLES, chunk.indexCount, GL_UNSIGNED_INT, 0);
 }
 
 void Renderer::setupBuffers(Voxel& voxel)
@@ -129,6 +140,27 @@ void Renderer::setupBuffers(Voxel& voxel)
     // texture coord attribute
     //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     //glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Renderer::setupBuffers(Chunk& chunk)
+{
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, chunk.vertexSize, chunk.vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, chunk.indexCount * sizeof(unsigned int), chunk.indices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

@@ -10,6 +10,7 @@
 
 #include "Shader.h"
 #include "Voxel.h"
+#include "Chunk.h"
 #include "Camera.h"
 
 class InputHandler;
@@ -23,12 +24,16 @@ public:
 
     GLFWwindow* getwindow() const;
     void init();
-    void update(glm::vec3 glmColor);
+    void setScrClr(glm::vec3 glmColor);
     void updateMode(char currentState);
     void clear();
     glm::vec3 getScrColor();
-    void draw(const glm::vec3& color, glm::mat4& projection, glm::mat4& view,  glm::mat4& model);
+    void draw(Voxel& voxel, glm::vec3 color, glm::mat4& projection, glm::mat4& view,  glm::mat4& model);
+    void draw(Chunk& chunk, glm::vec3 color, glm::mat4& projection, glm::mat4& view, glm::mat4& model);
     char renderState;
+
+    void setupBuffers(Voxel& voxel);
+    void setupBuffers(Chunk& chunk);
 
 private:
     GLFWwindow* window;
@@ -41,10 +46,8 @@ private:
 
     Shader shader;
     Voxel voxel;
+    Chunk chunk;
     Camera& camera;
-
-    void setupBuffers(Voxel& voxel);
-
 
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
