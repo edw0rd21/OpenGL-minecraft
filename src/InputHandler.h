@@ -12,7 +12,7 @@ public:
 	~InputHandler();
 
 	void handleKeyboard(float deltaTime);
-	bool getMouseState() const;
+	bool getMouseState();
 	void setMouseState(bool state);
 	void handleMouse(double xpos, double ypos);
 	void handleScroll(double yoffset);

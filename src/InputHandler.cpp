@@ -19,8 +19,15 @@ void InputHandler::setMouseState(bool state)
     flag = !flag;
 }
 
+bool InputHandler::getMouseState()
+{
+    return mouseState;
+}
+
+
 void InputHandler::handleKeyboard(float deltaTime)
 {
+
     if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(m_renderer.getwindow(), true);
 
@@ -66,9 +73,10 @@ void InputHandler::handleKeyboard(float deltaTime)
     }
     else 
     {
-        if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+        if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_E) == GLFW_PRESS)
         {
-            mouseState = false;
+            setMouseState(false);
+            std::cout << "Mouse State:" << (mouseState ? "true" : "false") << std::endl;
         }
     }
 }
@@ -80,7 +88,8 @@ void InputHandler::handleMouse(double xpos, double ypos)
     float xposFloat = static_cast<float>(xpos);
     float yposFloat = static_cast<float>(ypos);
 
-    if (firstMouse) {
+    if (firstMouse) 
+    {
         lastX = xposFloat;
         lastY = yposFloat;
         firstMouse = false;
