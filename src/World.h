@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -11,6 +13,7 @@
 #include "Renderer.h"
 #include "Camera.h"
 
+#include "vendor/FastNoiseLite.h"
 
 class World {
 public:
@@ -37,6 +40,9 @@ public:
     bool rotationState;
     void setVoxelDist(float value);
 
+    //FastNoiseLite noise;
+    void loadChunkNoise();
+
 private:
     Chunk chunk;
     std::vector<Chunk> chunks;
@@ -55,4 +61,6 @@ private:
     void calculateFrustumPlanes(glm::mat4& projectionViewMatrix);
     int isChunkInFrustum(const Chunk& chunk) const;
     int isPointInFrustum(const glm::vec3& point) const;
+
+    int num;
 };

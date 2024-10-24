@@ -34,6 +34,32 @@ void World::loadChunk()
     }
 }
 
+void World::loadChunkNoise() 
+{
+    FastNoiseLite noise;
+    noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    noise.SetFrequency(1.0f);
+
+    for (int x = 0; x < numChunks; ++x)
+    {
+        for (int z = 0; z < numChunks; ++z)
+        {
+            float noiseValue = noise.GetNoise((float)(x * 0.1f), (float)(z * 0.1f));
+
+            int height = static_cast<int>(((noiseValue + 1.0f) * 0.5f) * 10.0f);
+            height = std::min(height, 10);
+
+            for (int y = 0; y < height; ++y) 
+            {
+                    Chunk chunk;
+                    chunk.position = glm::vec3(x * numCubes * voxelDist, y * numCubes * voxelDist, z * numCubes * voxelDist);
+                    chunks.push_back(chunk);
+            }
+            std::cout << "Height at (" << x << ", " << z << "): " << height << std::endl;
+        }
+    }
+}
+
 void World::loadVoxel()
 {
     chunks.clear();
@@ -208,7 +234,7 @@ int World::isChunkInFrustum(const Chunk& chunk) const
 void World::update()
 {
     unloadChunk();
-    loadChunk();
+    loadChunkNoise();
 }
 
 void World::render(float aspectRatio)
