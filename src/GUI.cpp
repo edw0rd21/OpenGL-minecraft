@@ -5,7 +5,7 @@ GUI::GUI(Renderer& renderer, World& world, InputHandler& inputHandler) : m_rende
 {
 	show_demo_window = true;
     renderMode_window = false;
-    
+    clear_color = ImVec4(chunk.color.x, chunk.color.y, chunk.color.z, 1.00f);
     clear_scr_color = ImVec4(m_renderer->getScrColor().x, m_renderer->getScrColor().y, m_renderer->getScrColor().z, 1.0f);
 }
 
@@ -52,7 +52,7 @@ void GUI::drawFrame()
         if (ImGui::Checkbox("Process Mouse Movement", &mouseState))
         {
             m_inputHandler->setMouseState(mouseState); // Set the new state
-            std::cout << "Mouse State:" << (mouseState ? "true" : "false") << std::endl;
+            //std::cout << "Mouse State:" << (mouseState ? "true" : "false") << std::endl;
         }
 
         bool newState = m_world->rotationState;
@@ -76,7 +76,6 @@ void GUI::drawFrame()
             voxel.setVoxelDist(f);
         }
 
-        ImVec4 clear_color = ImVec4(chunk.color.x, chunk.color.y, chunk.color.z, 1.00f);
         ImGui::ColorEdit3("Voxel Color", (float*)&clear_color); // Edit 3 floats representing a color
         if (ImGui::IsItemActive())
         {
