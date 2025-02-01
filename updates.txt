@@ -14,7 +14,8 @@ simply doing Camera camera; individually in both classes, and using that camera 
 
 built an InputHandler class, which handles keyboard and mouse input (took responsibility out of Application and Renderer class to make them loosely coupled, and implement SRP for each class/component). Scrollback functions in Renderer class now simply retrieves the Renderer instance (Renderer* renderer)and forwards the mouse or scroll event to the InputHandler instance, allowing the InputHandler to process the event and update the application state accordingly
 
-added imgui
+added imgui:
+Settings menu including Process Mouse Movement checkbox to turn on/off mouse registry to see around. Sliders to change voxel and screen color
 
 Next up will try to load mutiple chunks next via world class(not used as of now)
 

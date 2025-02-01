@@ -33,14 +33,20 @@ Handles input events
 Methods:
 InputHandler(Camera& camera, Renderer& renderer, int width, int height) (default constructor)
 void handleKeyboard(float deltaTime);
+bool getMouseState() const;
+void setMouseState(bool state);
 void handleMouse(double xpos, double ypos);
 void handleScroll(double yoffset);
 
 World Class (to be fully defined)
 Manages the scene or environment.
 Members:
-std::vector<glm::vec3> (cube positions)
-std::vector<Cube> (cube instances)
+World();
+World(Camera& camera, Renderer& renderer);
+void render(float aspectRatio);
+void update(glm::vec3 newColor);
+float deltaTime;
+float lastFrame;
 
 Camera Class
 Manages the view and perspective.
@@ -53,6 +59,13 @@ etc
 
 Cube Class(basically a struct)
 indices and vertices
+
+GUI Class(ImGui integration)
+GUI(Renderer& renderer, World& m_world, InputHandler& inputHandler);
+void init();
+void newFrame();
+void drawFrame();
+void render();
 
 Basic workflow:
 `Renderer::draw()` takes in `glm::mat4& projection`, `glm::mat4& view`, `glm::mat4& model` and sends them to shader, and draws using `glDrawElements`, projection, view and model matrices are calculated in `Application::mainLoop()` and `renderer.draw(\\args)` is called. 

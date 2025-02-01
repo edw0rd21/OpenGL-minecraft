@@ -7,13 +7,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
-#include "vendor/imgui/imgui.h"
 #include "Voxel.h"   
 #include "Chunk.h"
 #include "Renderer.h"
 #include "Camera.h"
 
-#include "vendor/FastNoiseLite.h"
+#include "FastNoiseLite.h"
 
 class World {
 public:
@@ -40,7 +39,6 @@ public:
     bool rotationState;
     void setVoxelDist(float value);
 
-    //FastNoiseLite noise;
     void loadChunkNoise();
 
 private:
