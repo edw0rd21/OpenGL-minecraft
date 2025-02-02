@@ -50,6 +50,8 @@ public:
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch= true);
     void ProcessMouseScroll(float yoffset);
     bool hasCameraMoved();
+    void updateCameraSettings(float speed, float sens, float fov);
+
 private:
     void updateCameraVectors();
     glm::vec3 previousPos, previousFront;

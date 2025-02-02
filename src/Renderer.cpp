@@ -55,10 +55,14 @@ void Renderer::init()
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
     glEnable(GL_DEPTH_TEST);
+    //glDepthFunc(GL_LESS);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
 
     shader.load("shader/shader.vert", "shader/shader.frag");
 
-    setupBuffers(chunk);
+	//chunk.setupBuffers();
 }
 void Renderer::setScrClr(glm::vec3 glmColor)
 {
@@ -95,18 +99,6 @@ void Renderer::draw(Voxel& voxel, glm::vec3 color, glm::mat4& projection, glm::m
         glDrawElements(GL_TRIANGLES, voxel.p_indexCount, GL_UNSIGNED_INT, 0);
 }
 
-void Renderer::draw(Chunk& chunk, glm::vec3 color, glm::mat4& projection, glm::mat4& view, glm::mat4& model)
-{
-    shader.use();
-    glBindVertexArray(VAO);
-
-    shader.setVec3("color", color);
-    shader.setMat4("projection", projection);
-    shader.setMat4("view", view);
-    shader.setMat4("model", model);
-    
-    glDrawElements(GL_TRIANGLES, chunk.indexCount, GL_UNSIGNED_INT, 0);
-}
 
 void Renderer::setupBuffers(Voxel& voxel)
 {
@@ -119,19 +111,19 @@ void Renderer::setupBuffers(Voxel& voxel)
     if(renderState == 0)
     {    
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, voxel.c_size, voxel.c_vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, voxel.c_size, voxel.c_vertices, GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, voxel.c_indexCount * sizeof(unsigned int), voxel.c_indices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, voxel.c_indexCount * sizeof(unsigned int), voxel.c_indices, GL_STATIC_DRAW);
     }
 
     else if (renderState == 1)
     {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, voxel.p_size, voxel.p_vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, voxel.p_size, voxel.p_vertices, GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, voxel.p_indexCount * sizeof(unsigned int), voxel.p_indices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, voxel.p_indexCount * sizeof(unsigned int), voxel.p_indices, GL_STATIC_DRAW);
     }
 
     // position attribute
@@ -145,6 +137,19 @@ void Renderer::setupBuffers(Voxel& voxel)
     glBindVertexArray(0);
 }
 
+void Renderer::draw(Chunk& chunk, glm::vec3 color, glm::mat4& projection, glm::mat4& view, glm::mat4& model)
+{
+    shader.use();
+    glBindVertexArray(chunk.VAO);
+
+    shader.setVec3("color", color);
+    shader.setMat4("projection", projection);
+    shader.setMat4("view", view);
+    shader.setMat4("model", model);
+    
+    glDrawElements(GL_TRIANGLES, chunk.indexCount, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
 void Renderer::setupBuffers(Chunk& chunk)
 {
     glGenVertexArrays(1, &VAO);
@@ -159,8 +164,13 @@ void Renderer::setupBuffers(Chunk& chunk)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, chunk.indexCount * sizeof(unsigned int), chunk.indices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    //position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
     glEnableVertexAttribArray(0);
+
+    //lighting/color attribute
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

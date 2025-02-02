@@ -29,7 +29,7 @@ glm::mat4 Camera::getViewMatrix() const
 
 glm::mat4 Camera::getProjectionMatrix(float aspectRatio) const 
 {
-    return glm::perspective(glm::radians(Zoom), aspectRatio, 0.01f, 100.0f);
+    return glm::perspective(glm::radians(Zoom), aspectRatio, 0.001f, 500.0f);
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -37,10 +37,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = MovementSpeed * deltaTime;
     if (direction == FORWARD)
-    {
-        std::cout << "Camera Position: " << Position.x << ", " << Position.y << ", " << Position.z << std::endl;
         Position += Front * velocity;
-    }
     if (direction == BACKWARD)
         Position -= Front * velocity;
     if (direction == LEFT)
@@ -96,6 +93,13 @@ void Camera::updateCameraVectors()
     // also re-calculate the Right and Up vector
     Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up = glm::normalize(glm::cross(Right, Front));
+}
+
+void Camera::updateCameraSettings(float speed, float sens, float fov)
+{
+    MouseSensitivity = sens;
+    MovementSpeed = speed;
+    Zoom = fov;
 }
 
 bool Camera::hasCameraMoved()

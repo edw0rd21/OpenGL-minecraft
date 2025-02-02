@@ -2,6 +2,6 @@
 
 int main()
 {
-    Application app(1920, 1080, "Eddie-Craft");
+    Application app(1920, 1080, "Random");
     app.run();
 }

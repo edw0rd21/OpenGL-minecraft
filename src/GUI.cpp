@@ -1,11 +1,17 @@
 #include "GUI.h"
+
 GUI::GUI() {}
 
-GUI::GUI(Renderer& renderer, World& world, InputHandler& inputHandler) : m_renderer(&renderer) , m_world(&world) , m_inputHandler(&inputHandler)
+GUI::GUI(Renderer& renderer, World& m_world, InputHandler& inputHandler, Camera& cam)
+    : m_renderer(&renderer) , 
+    m_world(&m_world) , 
+    m_inputHandler(&inputHandler) ,
+    m_camera(&cam)
 {
-	show_demo_window = true;
+	show_demo_window = false;
     renderMode_window = false;
-    clear_color = ImVec4(chunk.color.x, chunk.color.y, chunk.color.z, 1.00f);
+    camSettings = false;
+    clear_color = ImVec4(chunk.color.x, chunk.color.y, chunk.color.z, 1.0f);
     clear_scr_color = ImVec4(m_renderer->getScrColor().x, m_renderer->getScrColor().y, m_renderer->getScrColor().z, 1.0f);
 }
 
@@ -20,7 +26,12 @@ void GUI::init()
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(m_renderer->getwindow(), true);
 	io = &ImGui::GetIO();
-	ImGui_ImplOpenGL3_Init("#version 130");
+	ImGui_ImplOpenGL3_Init("#version 330");
+
+    if (glGetError() != GL_NO_ERROR) {
+        std::cerr << "ImGui OpenGL init failed" << std::endl;
+    }
+
 	ImGui::StyleColorsDark();
 }
 
@@ -38,9 +49,14 @@ void GUI::drawFrame()
 
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
     {
-        static int i = 1;
+        static int i = m_world->numChunks;
         static int j = 1;
         static int f = voxel.getvoxelDist();
+
+        static float speed = SPEED;
+        static float sens = SENSITIVITY;
+        static float fov = ZOOM;
+
         static int counter = 0;
 
         ImGui::Begin("Settings");                          // Create a window called "Hello, world!" and append into it.
@@ -76,7 +92,7 @@ void GUI::drawFrame()
             voxel.setVoxelDist(f);
         }
 
-        ImGui::ColorEdit3("Voxel Color", (float*)&clear_color); // Edit 3 floats representing a color
+        ImGui::ColorEdit3("Voxel Color", (float*)&clear_color);
         if (ImGui::IsItemActive())
         {
             glm::vec3 glmColor = glm::vec3(clear_color.x, clear_color.y, clear_color.z);
@@ -94,6 +110,11 @@ void GUI::drawFrame()
         {
             renderMode_window = true;
             counter++;
+        }
+
+        if (ImGui::Button("Camera Settings"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+        {
+            camSettings = true;
         }
 
         if (renderMode_window)
@@ -116,7 +137,32 @@ void GUI::drawFrame()
             ImGui::End();
         }
 
-        ImGui::SameLine();
+        if (camSettings)
+        {
+            ImGui::Begin("Window", &camSettings);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Change Camera Settings");
+
+            if (ImGui::SliderFloat("Speed", &speed, 10.0f, 200.0f))
+            {
+                m_camera -> updateCameraSettings(speed, sens, fov);
+            }
+
+            if (ImGui::SliderFloat("Sensitivity", &sens, 0.01f, 0.5f))
+            {
+                m_camera->updateCameraSettings(speed, sens, fov);
+            }
+
+            if (ImGui::SliderFloat("Zoom", &fov, 20.0f, 100.0f))
+            {
+                m_camera->updateCameraSettings(speed, sens, fov);
+            }
+
+            if (ImGui::Button("Close"))
+                camSettings = false;
+
+            ImGui::End();
+        }
+
         ImGui::Text("counter = %d", counter);
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);

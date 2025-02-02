@@ -39,7 +39,6 @@ void InputHandler::handleKeyboard(float deltaTime)
 
     if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_W) == GLFW_PRESS)
     {
-        //std::cout << "W key pressed" << std::endl;
         m_camera.ProcessKeyboard(FORWARD, deltaTime);
     }
     if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_S) == GLFW_PRESS)
@@ -53,7 +52,6 @@ void InputHandler::handleKeyboard(float deltaTime)
         m_camera.ProcessKeyboard(UP,  deltaTime);
     if (glfwGetKey(m_renderer.getwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
-        std::cout << "Move down" << std::endl;
         m_camera.ProcessKeyboard(DOWN, deltaTime);
     }
 

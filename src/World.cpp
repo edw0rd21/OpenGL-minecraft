@@ -6,117 +6,60 @@ World::World(Camera& camera, Renderer& renderer) : m_camera(&camera), m_renderer
 {
     deltaTime = 0.0f;
     lastFrame = 0.0f;
-    numChunks = 1;
+    numChunks = 10;
     numCubes = chunk.getChunkSize();
     voxelDist = voxel.getvoxelDist();
+    chunkColor = chunk.color;
     rotationState = false;
-    //loadChunk();
+
+    m_worldNoise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    m_worldNoise.SetSeed(1337);  // Fixed seed for consistency
+    m_worldNoise.SetFrequency(0.08f);
 }
 
 
 void World::loadChunk()
 {
     chunks.clear();
+    chunks.reserve(numChunks* numChunks * numChunks);
 
-    //chunk creation
-    for (int x = 0; x < numChunks; ++x)
-    {
-        for (int y = 0; y < numChunks; ++y)
-        {
-            for (int z = 0; z < numChunks; ++z)
-            {
-                Chunk chunk;
-                chunk.position = glm::vec3(x * numCubes * voxelDist, y * numCubes * voxelDist, z * numCubes * voxelDist);
-                if (!chunk.vertices.empty())
-                    chunks.push_back(chunk);
-            }
-        }
-    }
-}
+    const int chunkSpan = numChunks / 2;
 
-void World::loadChunkNoise() 
-{
-    FastNoiseLite noise;
-    noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    noise.SetFrequency(1.0f);
-
+    //chunk creationss
     for (int x = 0; x < numChunks; ++x)
     {
         for (int z = 0; z < numChunks; ++z)
         {
-            float noiseValue = noise.GetNoise((float)(x * 0.1f), (float)(z * 0.1f));
+            Chunk chunk;
 
-            int height = static_cast<int>(((noiseValue + 1.0f) * 0.5f) * 10.0f);
-            height = std::min(height, 10);
+            chunk.position = glm::vec3( x * numCubes * voxelDist, 0, z * numCubes * voxelDist);
 
-            for (int y = 0; y < height; ++y) 
-            {
-                    Chunk chunk;
-                    chunk.position = glm::vec3(x * numCubes * voxelDist, y * numCubes * voxelDist, z * numCubes * voxelDist);
-                    chunks.push_back(chunk);
-            }
-            std::cout << "Height at (" << x << ", " << z << "): " << height << std::endl;
+            chunk.generateHeightmap(m_worldNoise);
+            chunk.populateBlocks();
+            chunk.generateMesh();
+            chunk.setupBuffers();
+            chunks.push_back(chunk);
         }
     }
 }
 
-void World::loadVoxel()
-{
-    chunks.clear();
-
-    //chunk creation
-    for (int x = 0; x < numChunks; ++x)
-    {
-        for (int y = 0; y < numChunks; ++y)
-        {
-            for (int z = 0; z < numChunks; ++z)
-            {
-                Chunk chunk;
-                chunk.position = glm::vec3(x * numCubes * voxelDist, y * numCubes * voxelDist, z * numCubes * voxelDist);
-                //chunk.genChunkData();
-                if (!chunk.vertices.empty())
-                    chunks.push_back(chunk);
-
-                // populating each chunk with cube positions
-                for (int i = 0; i < numCubes; ++i)
-                {
-                    for (int j = 0; j < numCubes; ++j)
-                    {
-                        for (int k = 0; k < numCubes; ++k)
-                        {
-                            glm::vec3 cubePos = chunk.position + glm::vec3(i * voxelDist, j * voxelDist, k * voxelDist);
-
-                            if (isPointInFrustum(cubePos) != World::OUTSIDE)
-                            {
-                                Voxel voxel;
-                                voxel.position = cubePos; 
-                                chunk.voxels.push_back(voxel);
-                            }
-                        }
-                    }
-                }
-                if (!chunk.voxels.empty())
-                {
-                    chunks.push_back(chunk);
-                }
-            }
-        }
-    }
-}
 
 void World::unloadChunk()
 {
-    auto it = chunks.begin();
-    while (it != chunks.end())
+    for (auto& chunk : chunks)
     {
-        if (isPointInFrustum(it->position) == World::OUTSIDE)
-        //if (isPointInFrustum(it->second.position) == World::OUTSIDE)  //unordered map
+        auto it = chunks.begin();
+        while (it != chunks.end())
         {
-            it = chunks.erase(it);
-        }
-        else
-        {
-            ++it;
+            if (isPointInFrustum(it->position) == World::OUTSIDE)
+                //if (isPointInFrustum(it->second.position) == World::OUTSIDE)  //unordered map
+            {
+                it = chunks.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 }
@@ -130,6 +73,15 @@ Voxel& World::getVoxel()
             return voxel;
         }
     }
+}
+
+void World::update()
+{    
+    loadChunk();
+    unloadChunk();
+
+    std::cout << "Chunks after update: " << chunks.size() << std::endl;
+    printDrawCalls = true;
 }
 
 void World::setChunkNum(int value)
@@ -152,10 +104,12 @@ void World::setVoxelDist(float value)
 
 void World::setVoxelColor(glm::vec3 newColor)
 {
-    for (auto& chunk : chunks)
-    {
-        chunk.color = newColor;
-    }
+    chunkColor = newColor;
+    //for (auto& chunk : chunks)
+    //{
+    //    chunk.color = newColor;
+    //}
+
 }
 
 void World::calculateFrustumPlanes(glm::mat4& projectionViewMatrix)
@@ -216,7 +170,7 @@ int World::isPointInFrustum(const glm::vec3& point) const
 int World::isChunkInFrustum(const Chunk& chunk) const
 {
     glm::vec3 minBound = chunk.position;  
-    glm::vec3 maxBound = chunk.position + glm::vec3(numCubes); 
+    glm::vec3 maxBound = chunk.position + glm::vec3(numCubes * voxelDist); 
 
     for (int i = 0; i < 6; i++)
     {
@@ -228,13 +182,6 @@ int World::isChunkInFrustum(const Chunk& chunk) const
         }
     }
     return INSIDE;  
-}
-
-
-void World::update()
-{
-    unloadChunk();
-    loadChunkNoise();
 }
 
 void World::render(float aspectRatio)
@@ -249,6 +196,8 @@ void World::render(float aspectRatio)
 
     calculateFrustumPlanes(projectionViewMatrix);
 
+    int drawcalls = 0;
+
     for (auto& chunk : chunks)
     {
         if (isChunkInFrustum(chunk) == World::INSIDE)
@@ -258,26 +207,13 @@ void World::render(float aspectRatio)
             if (rotationState == true)
                 chunkModel = glm::rotate(chunkModel, glm::radians(40.0f * currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
 
-            m_renderer->draw(chunk, chunk.color, projection, view, chunkModel);
-
-/*            for (auto& voxel : chunk.voxels)
-            {
-                if (isPointInFrustum(voxel.position) == World::INSIDE)
-                {
-                    glm::mat4 voxelModel = glm::translate(glm::mat4(1.0f), voxel.position);
-
-                    if (rotationState == true)
-                        voxelModel = glm::rotate(voxelModel, glm::radians(40.0f * currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
-
-                    m_renderer->draw(voxel, voxel.color, projection, view, voxelModel);
-                }
-            }  */          
+            m_renderer->draw(chunk, chunkColor, projection, view, chunkModel);
+            drawcalls++;        
         }
     }
+    if(printDrawCalls)
+    {
+        std::cout << "Number of draw calls:" << drawcalls<<std::endl;
+        printDrawCalls = false;
+    }
 }
-        
-
-
-
-
-

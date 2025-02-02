@@ -7,12 +7,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
+#include "imgui/imgui.h"
 #include "Voxel.h"   
 #include "Chunk.h"
 #include "Renderer.h"
 #include "Camera.h"
 
 #include "FastNoiseLite.h"
+
 
 class World {
 public:
@@ -21,7 +23,7 @@ public:
 
     enum { OUTSIDE, INTERSECT, INSIDE };
     glm::vec4 planes[6];
-    void loadVoxel();
+
     void loadChunk();
     void unloadChunk();
 
@@ -39,26 +41,27 @@ public:
     bool rotationState;
     void setVoxelDist(float value);
 
-    void loadChunkNoise();
+    int numChunks;
 
 private:
     Chunk chunk;
     std::vector<Chunk> chunks;
-    //std::unordered_map<glm::vec3, Chunk, Vec3Hash> chunks;
 
     Voxel voxel;
     Camera* m_camera;
     Renderer* m_renderer;
-    glm::vec3 newColor;
+    glm::vec3 chunkColor;
     glm::vec3 previousPos, previousFront;
     float rotationAngle;
-    int numChunks;
+
     int numCubes;
     int voxelDist;
 
     void calculateFrustumPlanes(glm::mat4& projectionViewMatrix);
     int isChunkInFrustum(const Chunk& chunk) const;
     int isPointInFrustum(const glm::vec3& point) const;
+    FastNoiseLite m_worldNoise;
 
     int num;
+    bool printDrawCalls = true;
 };

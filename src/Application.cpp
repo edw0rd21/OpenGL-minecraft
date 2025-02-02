@@ -7,10 +7,10 @@ Application::Application(int width, int height, const std::string& title)
 	  renderer(width, height, title, camera, inputHandler), 
 	  inputHandler(camera, renderer, width, height),
 	  world(camera, renderer),
-      gui(renderer, world, inputHandler)
+      gui(renderer, world, inputHandler, camera)
 {
 	aspectRatio = static_cast<float>(width) / static_cast<float>(height);
-	scr_clear_color = glm::vec3(gui.glmScrColor.x, gui.glmScrColor.y, gui.glmScrColor.z);
+	//scr_clear_color = glm::vec3(gui.glmScrColor.x, gui.glmScrColor.y, gui.glmScrColor.z);
 }
 
 Application::~Application() {}
@@ -21,18 +21,12 @@ void Application::run()
 
     gui.init();
 
-	if (camera.hasCameraMoved())
-	{
-		world.update();
-	}
-
 	mainLoop();
-
 }
 
 void Application::update()
 {
-
+	world.update();
 }
 
 void Application::handleInput(float deltaTime) 
@@ -44,12 +38,16 @@ void Application::mainLoop()
 {
 	while (!glfwWindowShouldClose(renderer.getwindow()))
 	{	
-
 		inputHandler.handleKeyboard(world.deltaTime);
 
 		renderer.clear();
-        gui.newFrame();
+		gui.newFrame();
 		gui.drawFrame();
+
+		if (camera.hasCameraMoved())
+		{
+			world.update();
+		}
 
 		world.render(aspectRatio);
 
