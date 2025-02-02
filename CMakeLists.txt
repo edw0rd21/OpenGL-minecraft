@@ -12,6 +12,7 @@ set(GLFW_LIB "${CMAKE_SOURCE_DIR}/vendor/GLFW/lib/glfw3.lib")
 
 include_directories(${CMAKE_SOURCE_DIR}/include
 	${CMAKE_SOURCE_DIR}/vendor
+	${CMAKE_SOURCE_DIR}/vendor/imgui
 	${CMAKE_SOURCE_DIR}/vendor/GLAD/include
 	${CMAKE_SOURCE_DIR}/vendor/GLFW/include
 	${CMAKE_SOURCE_DIR}/vendor/glm)
