@@ -6,22 +6,33 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin/)
-set(GLFW_LIB "${CMAKE_SOURCE_DIR}/vendor/GLFW/lib/glfw3.lib")
 
-include_directories(${CMAKE_SOURCE_DIR}/include
-	${CMAKE_SOURCE_DIR}/vendor
-	${CMAKE_SOURCE_DIR}/vendor/imgui
-	${CMAKE_SOURCE_DIR}/vendor/GLAD/include
-	${CMAKE_SOURCE_DIR}/vendor/GLFW/include
-	${CMAKE_SOURCE_DIR}/vendor/glm)
+add_subdirectory(vendor/glfw)
+add_subdirectory(vendor/glad)
+add_subdirectory(vendor/imgui)
+add_subdirectory(vendor/glm)
 
-file(GLOB_RECURSE SOURCE_FILES "src/*.cpp"
-	"vendor/imgui/*cpp"
-	"src/glad.c")
+add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
+file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
 find_package(OpenGL REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} OpenGL::GL ${GLFW_LIB})
+target_include_directories(${PROJECT_NAME} PRIVATE 
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+	${CMAKE_CURRENT_SOURCE_DIR}/vendor)
+
+target_link_libraries(${PROJECT_NAME} 
+    OpenGL::GL
+    glfw
+    glad
+    glm
+    imgui)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/shader
+    ${CMAKE_BINARY_DIR}/bin/$<CONFIG>/shader
+)
